@@ -1,0 +1,21 @@
+{
+    "name": "ExcluVip-Mobilidade",
+    "short_name": "Mobi",
+    "start_url": "passageiro.html",
+    "display": "standalone",
+    "background_color": "#2e5b8e",
+    "theme_color": "#2e5b8e",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
