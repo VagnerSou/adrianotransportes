@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ExcluVip-Mobilidade</title>
-
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e5b8e">
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
     <style>
         :root {
             --primary: #2e5b8e;
@@ -19,505 +15,240 @@
             --danger: #ff5c5c;
             --whatsapp: #25d366;
         }
-
-        body {
-            font-family: Arial;
-            margin: 0;
-            background: #eef2f7;
-        }
-
-        .header {
-            background: var(--primary);
-            color: white;
-            padding: 18px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .container {
-            max-width: 420px;
-            margin: auto;
-            padding: 15px;
-        }
-
-        .card {
-            background: var(--secondary);
-            padding: 20px;
-            border-radius: 14px;
-            color: white;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, .15);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #ccc;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background: #2c3e50;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        .row {
-            display: flex;
-            gap: 5px;
-        }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: .3s;
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .btn-calc {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-request {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-whatsapp {
-            background: var(--whatsapp);
-            color: white;
-        }
-
-        .btn-gps {
-            width: 60px;
-            background: #444;
-            color: white;
-            margin-top: 0;
-        }
-
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        #map {
-            height: 220px;
-            border-radius: 12px;
-            margin-top: 15px;
-            overflow: hidden;
-        }
-
-        .info-box {
-            background: white;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 12px;
-        }
-
-        .preco {
-            font-size: 1.2em;
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        #erro-msg {
-            color: var(--danger);
-            margin-top: 10px;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; background: #eef2f7; }
+        .header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; font-size: 1.1em; }
+        .container { max-width: 420px; margin: auto; padding: 15px; }
+        .card { background: var(--secondary); padding: 20px; border-radius: 14px; color: white; box-shadow: 0 6px 20px rgba(0, 0, 0, .15); }
+        label { display: block; margin-bottom: 5px; color: #ccc; }
+        input, select { width: 100%; padding: 12px; border: none; border-radius: 8px; margin-bottom: 12px; background: #2c3e50; color: white; box-sizing: border-box; font-size: 1em; }
+        .row { display: flex; gap: 8px; align-items: center; }
+        .row input { margin-bottom: 0; flex: 1; }
+        button { width: 100%; padding: 13px; border: none; border-radius: 8px; margin-top: 10px; font-weight: bold; font-size: 1em; cursor: pointer; transition: .2s; }
+        button:active { transform: scale(0.98); }
+        .btn-calc { background: var(--accent); color: white; }
+        .btn-request { background: var(--primary); color: white; }
+        .btn-whatsapp { background: var(--whatsapp); color: white; }
+        .btn-gps { width: 50px; height: 42px; background: #444; color: white; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2em; margin-top: 0; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        #map { height: 220px; border-radius: 12px; margin-top: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .info-box { background: white; padding: 15px; margin-top: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .info-box div { margin-bottom: 5px; color: #333; }
+        .preco { font-size: 1.2em; color: var(--accent); font-weight: bold; margin-bottom: 0 !important; }
+        #erro-msg { color: var(--danger); margin-top: 10px; font-size: 0.9em; font-weight: bold; }
     </style>
-
 </head>
-
 <body>
 
-    <div class="header">
-        ExcluVip-Mobilidade
-    </div>
+    <div class="header">ExcluVip-Mobilidade</div>
 
     <div class="container">
-
         <div class="card">
-
-            <label>Nome do Passageiro</label>
+            <label for="nome">Nome do Passageiro</label>
             <input type="text" id="nome" placeholder="Seu nome">
 
-            <label>Telefone</label>
-            <input type="text" id="telefone" placeholder="(16) 99999-9999">
+            <label for="telefone">Telefone</label>
+            <input type="tel" id="telefone" placeholder="(16) 99999-9999">
 
-            <label>Forma de Pagamento</label>
+            <label for="pagamento">Forma de Pagamento</label>
             <select id="pagamento">
                 <option value="Dinheiro">Dinheiro</option>
                 <option value="Pix">Pix</option>
                 <option value="Cartão">Cartão</option>
             </select>
 
-            <label>Origem</label>
-
-            <div class="row">
-
-                <input type="text" id="origem" placeholder="Buscando GPS...">
-
-                <button class="btn-gps" onclick="capturarLocalizacao()">
-                    📍
-                </button>
-
+            <label for="origem">Origem</label>
+            <div class="row" style="margin-bottom: 12px;">
+                <input type="text" id="origem" placeholder="Buscando GPS ou digite...">
+                <button type="button" class="btn-gps" onclick="capturarLocalizacao()">📍</button>
             </div>
 
-            <label>Destino</label>
+            <label for="destino">Destino</label>
+            <input type="text" id="destino" placeholder="Ex: Shopping Jaraguá, Araraquara">
 
-            <input type="text" id="destino" placeholder="Ex: Shopping Jaraguá">
-
-            <button class="btn-calc" id="btnCalc" onclick="calcular()">
-                Calcular Rota
-            </button>
-
-            <button class="btn-request" onclick="solicitar()">
-                Solicitar Viagem
-            </button>
-
-            <button class="btn-whatsapp" onclick="chamarWhatsApp()">
-                WhatsApp
-            </button>
+            <button type="button" class="btn-calc" id="btnCalc" onclick="calcular()">Calcular Rota</button>
+            <button type="button" class="btn-request" onclick="solicitar()">Solicitar Viagem</button>
+            <button type="button" class="btn-whatsapp" onclick="chamarWhatsApp()">Chamar no WhatsApp</button>
 
             <div id="erro-msg"></div>
-
         </div>
 
         <div id="map"></div>
 
         <div class="info-box" id="info-box" style="display:none;">
-
-            <div id="distancia">
-                Distância: 0 km
-            </div>
-
-            <div id="tempo">
-                Tempo estimado: 0 min
-            </div>
-
-            <div class="preco" id="preco">
-                Valor: R$ 0,00
-            </div>
-
+            <div id="distancia">Distância: 0 km</div>
+            <div id="tempo">Tempo estimado: 0 min</div>
+            <div class="preco" id="preco">Valor: R$ 0,00</div>
         </div>
-
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
-
         const telefoneSuporte = "5516997570917";
-
         let map = L.map('map').setView([-21.7845, -48.1772], 13);
 
-        L.tileLayer(
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-        ).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
 
-        let camadaRota = null;
-        let markerOrigem = null;
-        let markerDestino = null;
-
-        let distanciaCalculada = "";
-        let valorEstimado = "";
-        let tempoEstimado = "";
-
-        let origemCoords = null;
-        let destinoCoords = null;
+        let camadaRota = null, markerOrigem = null, markerDestino = null;
+        let distanciaCalculada = "", valorEstimado = "", tempoEstimado = "";
+        let origemCoords = null, destinoCoords = null;
 
         async function capturarLocalizacao() {
+            document.getElementById('erro-msg').innerText = '';
+            document.getElementById('origem').placeholder = "Obtendo localização...";
+
+            if (!navigator.geolocation) {
+                document.getElementById('erro-msg').innerText = 'Geolocalização não suportada.';
+                return;
+            }
 
             navigator.geolocation.getCurrentPosition(
-
                 async (pos) => {
-
                     try {
+                        const lat = pos.coords.latitude, lon = pos.coords.longitude;
+                        origemCoords = { lat, lng: lon };
 
-                        const lat = pos.coords.latitude;
-                        const lon = pos.coords.longitude;
-
-                        origemCoords = {
-                            lat,
-                            lng: lon
-                        };
-
-                        const res = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-                        );
-
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                         const data = await res.json();
 
-                        document.getElementById('origem').value =
-                            data.display_name;
-
+                        document.getElementById('origem').value = data.display_name;
                         map.setView([lat, lon], 16);
 
-                        if (markerOrigem) {
-                            map.removeLayer(markerOrigem);
-                        }
-
-                        markerOrigem =
-                            L.marker([lat, lon]).addTo(map);
-
+                        if (markerOrigem) map.removeLayer(markerOrigem);
+                        markerOrigem = L.marker([lat, lon]).addTo(map).bindPopup('Você está aqui').openPopup();
                     } catch (e) {
-
-                        document.getElementById('erro-msg').innerText =
-                            'Erro ao obter localização.';
-
+                        document.getElementById('erro-msg').innerText = 'Erro ao processar GPS.';
                     }
-
                 },
-
                 () => {
-
-                    document.getElementById('erro-msg').innerText =
-                        'Permissão de localização negada.';
-
+                    document.getElementById('origem').placeholder = "Digite o endereço de origem...";
+                    document.getElementById('erro-msg').innerText = 'Permissão de localização negada.';
                 },
-
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000
-                }
-
+                { enableHighAccuracy: true, timeout: 10000 }
             );
-
         }
 
         async function calcular() {
-
             document.getElementById('erro-msg').innerText = '';
+            const ori = document.getElementById('origem').value.trim();
+            const des = document.getElementById('destino').value.trim();
 
-            const btn =
-                document.getElementById('btnCalc');
+            if (!ori || !des) {
+                document.getElementById('erro-msg').innerText = 'Informe origem e destino.';
+                return;
+            }
 
+            const btn = document.getElementById('btnCalc');
             btn.innerText = 'Calculando...';
             btn.disabled = true;
             btn.classList.add('loading');
 
             try {
-
-                const ori =
-                    document.getElementById('origem').value;
-
-                const des =
-                    document.getElementById('destino').value;
-
-                const bbox =
-                    '&countrycodes=br';
-
-                const rO =
-                    await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ori)}${bbox}`
-                    );
-
+                const bbox = '&countrycodes=br';
+                const rO = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ori)}${bbox}`);
                 const dO = await rO.json();
-
-                const rD =
-                    await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(des)}${bbox}`
-                    );
-
+                const rD = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(des)}${bbox}`);
                 const dD = await rD.json();
 
-                if (!dO.length || !dD.length) {
-                    throw new Error('Endereço não encontrado.');
-                }
+                if (!dO.length || !dD.length) throw new Error('Endereço não localizado. Detalhe melhor o local.');
 
-                origemCoords = {
-                    lat: dO[0].lat,
-                    lng: dO[0].lon
-                };
+                origemCoords = { lat: dO[0].lat, lng: dO[0].lon };
+                destinoCoords = { lat: dD[0].lat, lng: dD[0].lon };
 
-                destinoCoords = {
-                    lat: dD[0].lat,
-                    lng: dD[0].lon
-                };
-
-                const rR =
-                    await fetch(
-                        `https://router.project-osrm.org/route/v1/driving/${dO[0].lon},${dO[0].lat};${dD[0].lon},${dD[0].lat}?overview=full&geometries=geojson`
-                    );
-
+                const rR = await fetch(`https://router.project-osrm.org/route/v1/driving/${dO[0].lon},${dO[0].lat};${dD[0].lon},${dD[0].lat}?overview=full&geometries=geojson`);
                 const data = await rR.json();
 
-                const km =
-                    data.routes[0].distance / 1000;
+                const km = data.routes[0].distance / 1000;
+                const minutos = Math.round(data.routes[0].duration / 60);
 
-                const minutos =
-                    Math.round(data.routes[0].duration / 60);
+                distanciaCalculada = km.toFixed(2) + ' km';
+                tempoEstimado = minutos + ' min';
 
-                distanciaCalculada =
-                    km.toFixed(2) + ' km';
+                const tarifaBase = 6, valorKm = 2.8;
+                valorEstimado = (tarifaBase + (km * valorKm)).toFixed(2);
 
-                tempoEstimado =
-                    minutos + ' min';
+                document.getElementById('info-box').style.display = 'block';
+                document.getElementById('distancia').innerText = `Distância: ${distanciaCalculada}`;
+                document.getElementById('tempo').innerText = `Tempo estimado: ${tempoEstimado}`;
+                document.getElementById('preco').innerText = `Valor: R$ ${valorEstimado.replace('.', ',')}`;
 
-                const tarifaBase = 6;
-                const valorKm = 2.8;
+                if (camadaRota) map.removeLayer(camadaRota);
+                if (markerOrigem) map.removeLayer(markerOrigem);
+                if (markerDestino) map.removeLayer(markerDestino);
 
-                valorEstimado =
-                    (tarifaBase + (km * valorKm)).toFixed(2);
+                markerOrigem = L.marker([dO[0].lat, dO[0].lon]).addTo(map).bindPopup('Origem');
+                markerDestino = L.marker([dD[0].lat, dD[0].lon]).addTo(map).bindPopup('Destino');
 
-                document.getElementById('info-box')
-                    .style.display = 'block';
+                camadaRota = L.geoJSON(data.routes[0].geometry, {
+                    style: { color: '#2e5b8e', weight: 5, opacity: 0.8 }
+                }).addTo(map);
 
-                document.getElementById('distancia')
-                    .innerText =
-                    `Distância: ${distanciaCalculada}`;
-
-                document.getElementById('tempo')
-                    .innerText =
-                    `Tempo estimado: ${tempoEstimado}`;
-
-                document.getElementById('preco')
-                    .innerText =
-                    `Valor: R$ ${valorEstimado}`;
-
-                if (camadaRota) {
-                    map.removeLayer(camadaRota);
-                }
-
-                if (markerDestino) {
-                    map.removeLayer(markerDestino);
-                }
-
-                markerDestino =
-                    L.marker([dD[0].lat, dD[0].lon]).addTo(map);
-
-                camadaRota =
-                    L.geoJSON(
-                        data.routes[0].geometry,
-                        {
-                            style: {
-                                color: '#2e5b8e',
-                                weight: 5
-                            }
-                        }
-                    ).addTo(map);
-
-                map.fitBounds(camadaRota.getBounds());
-
+                map.fitBounds(camadaRota.getBounds(), { padding: [30, 30] });
             } catch (e) {
-
-                document.getElementById('erro-msg')
-                    .innerText = e.message;
-
+                document.getElementById('erro-msg').innerText = e.message;
+            } finally {
+                btn.innerText = 'Calcular Rota';
+                btn.disabled = false;
+                btn.classList.remove('loading');
             }
-
-            btn.innerText = 'Calcular Rota';
-            btn.disabled = false;
-            btn.classList.remove('loading');
-
         }
 
         function solicitar() {
+            const nome = document.getElementById('nome').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
 
-            if (!distanciaCalculada) {
-                alert('Calcule a rota.');
+            if (!nome || !telefone || !distanciaCalculada) {
+                alert('Preencha os campos obrigatórios e calcule a rota.');
                 return;
             }
 
-            let corridas =
-                JSON.parse(localStorage.getItem('corridas')) || [];
-
+            let corridas = JSON.parse(localStorage.getItem('corridas')) || [];
             corridas.push({
-
                 id: Date.now(),
-
-                nome:
-                    document.getElementById('nome').value,
-
-                telefone:
-                    document.getElementById('telefone').value,
-
-                pagamento:
-                    document.getElementById('pagamento').value,
-
-                origem:
-                    document.getElementById('origem').value,
-
-                destino:
-                    document.getElementById('destino').value,
-
-                distancia:
-                    distanciaCalculada,
-
-                tempo:
-                    tempoEstimado,
-
-                valor:
-                    valorEstimado,
-
-                status:
-                    'procurando_motorista',
-
+                nome: nome,
+                telefone: telefone,
+                pagamento: document.getElementById('pagamento').value,
+                origem: document.getElementById('origem').value,
+                destino: document.getElementById('destino').value,
+                distancia: distanciaCalculada,
+                tempo: tempoEstimado,
+                valor: valorEstimado,
+                status: 'procurando_motorista',
                 motoristaId: null,
-
-                criadoEm:
-                    new Date().toISOString(),
-
+                criadoEm: new Date().toISOString(),
                 origemCoords,
                 destinoCoords
-
             });
 
-            localStorage.setItem(
-                'corridas',
-                JSON.stringify(corridas)
-            );
-
-            alert('Corrida enviada.');
-
+            localStorage.setItem('corridas', JSON.stringify(corridas));
+            alert('Chamada enviada ao painel do motorista!');
         }
 
         function chamarWhatsApp() {
-
             if (!distanciaCalculada) {
-                alert('Calcule a rota primeiro.');
+                alert('Calcule a rota antes.');
                 return;
             }
+            const msg = `*Nova Solicitação - ExcluVip*%0A%0A` +
+                        `👤 *Passageiro:* ${document.getElementById('nome').value}%0A` +
+                        `📞 *Contato:* ${document.getElementById('telefone').value}%0A` +
+                        `💳 *Pagamento:* ${document.getElementById('pagamento').value}%0A%0A` +
+                        `📍 *Origem:* ${document.getElementById('origem').value}%0A` +
+                        `🏁 *Destino:* ${document.getElementById('destino').value}%0A%0A` +
+                        `📏 *Distância:* ${distanciaCalculada}%0A` +
+                        `⏱️ *Tempo:* ${tempoEstimado}%0A` +
+                        `💰 *Valor:* R$ ${valorEstimado.replace('.', ',')}`;
 
-            const msg =
-                `Nova Viagem:%0A` +
-                `Passageiro: ${document.getElementById('nome').value}%0A` +
-                `Telefone: ${document.getElementById('telefone').value}%0A` +
-                `Origem: ${document.getElementById('origem').value}%0A` +
-                `Destino: ${document.getElementById('destino').value}%0A` +
-                `Distância: ${distanciaCalculada}%0A` +
-                `Tempo: ${tempoEstimado}%0A` +
-                `Valor: R$ ${valorEstimado}`;
-
-            window.open(
-                `https://api.whatsapp.com/send?phone=${telefoneSuporte}&text=${msg}`,
-                '_blank'
-            );
-
+            window.open(`https://api.whatsapp.com/send?phone=${telefoneSuporte}&text=${msg}`, '_blank');
         }
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
         }
-
         window.onload = capturarLocalizacao;
-
     </script>
-
 </body>
-
 </html>

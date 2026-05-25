@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Motorista</title>
-
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
             --primary: #2e5b8e;
@@ -13,515 +12,174 @@
             --success: #28a745;
             --danger: #dc3545;
         }
-
-        body {
-            margin: 0;
-            background: #eef2f7;
-            font-family: Arial;
-        }
-
-        .header {
-            background: var(--primary);
-            color: white;
-            text-align: center;
-            padding: 18px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .container {
-            max-width: 450px;
-            margin: auto;
-            padding: 15px;
-        }
-
-        .corrida-card {
-            background: white;
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, .1);
-        }
-
-        .titulo {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .info {
-            margin-bottom: 8px;
-        }
-
-        .valor {
-            color: var(--success);
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .row {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .aceitar {
-            background: var(--success);
-        }
-
-        .recusar {
-            background: var(--danger);
-        }
-
-        .rota {
-            background: var(--primary);
-        }
-
-        .navegar {
-            background: #ff9800;
-        }
-
-        .status {
-            padding: 6px 10px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-top: 10px;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .procurando {
-            background: #ffc107;
-            color: black;
-        }
-
-        .vazio {
-            text-align: center;
-            color: #777;
-            margin-top: 50px;
-        }
-
-        .gps-tela {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 99999;
-            flex-direction: column;
-        }
-
-        .gps-topo {
-            background: var(--primary);
-            color: white;
-            padding: 15px;
-        }
-
-        .gps-topo h2 {
-            margin: 0;
-            font-size: 1.1em;
-        }
-
-        .gps-info {
-            padding: 10px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
-        }
-
-        .gps-info div {
-            margin-bottom: 8px;
-        }
-
-        #mapaGps {
-            flex: 1;
-            width: 100%;
-        }
-
-        .gps-botoes {
-            display: flex;
-            gap: 10px;
-            padding: 12px;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, .1);
-        }
-
-        .fechar {
-            background: var(--danger);
-        }
+        body { margin: 0; background: #eef2f7; font-family: Arial, sans-serif; }
+        .header { background: var(--primary); color: white; text-align: center; padding: 18px; font-weight: bold; font-size: 1.1em; }
+        .container { max-width: 450px; margin: auto; padding: 15px; }
+        .corrida-card { background: white; border-radius: 14px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, .1); }
+        .titulo { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; }
+        .info { margin-bottom: 8px; }
+        .valor { color: var(--success); font-weight: bold; font-size: 1.2em; }
+        .row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .aceitar { background: var(--success); }
+        .recusar { background: var(--danger); }
+        .navegar { background: #ff9800; }
+        .status { padding: 6px 10px; border-radius: 8px; display: inline-block; margin-top: 10px; font-size: 0.9em; font-weight: bold; }
+        .procurando { background: #ffc107; color: black; }
+        .vazio { text-align: center; color: #777; margin-top: 50px; }
+        .gps-tela { display: none; position: fixed; inset: 0; background: white; z-index: 99999; flex-direction: column; }
+        .gps-topo { background: var(--primary); color: white; padding: 15px; }
+        .gps-topo h2 { margin: 0; font-size: 1.1em; }
+        .gps-info { padding: 10px; background: white; box-shadow: 0 2px 10px rgba(0, 0, 0, .1); }
+        .gps-info div { margin-bottom: 8px; font-size: 0.95em; }
+        #mapaGps { flex: 1; width: 100%; }
+        .gps-botoes { display: flex; gap: 10px; padding: 12px; background: white; box-shadow: 0 -2px 10px rgba(0, 0, 0, .1); }
+        .fechar { background: var(--danger); }
     </style>
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
 </head>
-
 <body>
 
-    <div class="header">
-        Painel do Motorista
-    </div>
-
+    <div class="header">Painel do Motorista</div>
     <div class="container" id="painel"></div>
 
     <div class="gps-tela" id="gpsTela">
-
-        <div class="gps-topo">
-
-            <h2>
-                Navegação da Corrida
-            </h2>
-
-        </div>
-
+        <div class="gps-topo"><h2>Navegação da Corrida</h2></div>
         <div class="gps-info">
-
             <div id="origemGps"></div>
-
             <div id="destinoGps"></div>
-
         </div>
-
         <div id="mapaGps"></div>
-
         <div class="gps-botoes">
-
-            <button class="navegar" id="btnIniciarRota">
-
-                Iniciar Rota
-
-            </button>
-
-            <button class="fechar" onclick="fecharGps()">
-
-                Fechar
-
-            </button>
-
+            <button class="navegar" id="btnIniciarRota">Navegação Externa (GPS)</button>
+            <button class="fechar" onclick="fecharGps()">Voltar ao Painel</button>
         </div>
-
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
+        const painel = document.getElementById('painel');
+        const motoristaId = 'motorista_' + Date.now();
 
-        const painel =
-            document.getElementById('painel');
-
-        const motoristaId =
-            'motorista_' + Date.now();
-
-        let mapaGps = null;
-        let rotaAtual = null;
-        let marcadorOrigem = null;
-        let marcadorDestino = null;
+        let mapaGps = null, rotaAtual = null, marcadorOrigem = null, marcadorDestino = null;
 
         function renderizarCorrida(corrida) {
+            // Evita erros com aspas em strings tratando os parâmetros do botão de aceitar
+            const oriEscaped = corrida.origem.replace(/'/g, "\\'");
+            const desEscaped = corrida.destino.replace(/'/g, "\\'");
 
             painel.innerHTML += `
-
                 <div class="corrida-card">
-
-                    <div class="titulo">
-                        🚖 Nova Corrida
-                    </div>
-
-                    <div class="info">
-                        <strong>Passageiro:</strong>
-                        ${corrida.nome || 'Não informado'}
-                    </div>
-
-                    <div class="info">
-                        <strong>Telefone:</strong>
-                        ${corrida.telefone || 'Não informado'}
-                    </div>
-
-                    <div class="info">
-                        <strong>Pagamento:</strong>
-                        ${corrida.pagamento}
-                    </div>
-
-                    <div class="info">
-                        <strong>Origem:</strong>
-                        ${corrida.origem}
-                    </div>
-
-                    <div class="info">
-                        <strong>Destino:</strong>
-                        ${corrida.destino}
-                    </div>
-
-                    <div class="info">
-                        <strong>Distância:</strong>
-                        ${corrida.distancia}
-                    </div>
-
-                    <div class="info">
-                        <strong>Tempo:</strong>
-                        ${corrida.tempo}
-                    </div>
-
-                    <div class="valor">
-                        R$ ${corrida.valor}
-                    </div>
-
-                    <div class="status procurando">
-                        Procurando motorista
-                    </div>
-
+                    <div class="titulo">🚖 Nova Corrida</div>
+                    <div class="info"><strong>Passageiro:</strong> ${corrida.nome || 'Não informado'}</div>
+                    <div class="info"><strong>Telefone:</strong> ${corrida.telefone || 'Não informado'}</div>
+                    <div class="info"><strong>Pagamento:</strong> ${corrida.pagamento}</div>
+                    <div class="info"><strong>Origem:</strong> ${corrida.origem}</div>
+                    <div class="info"><strong>Destino:</strong> ${corrida.destino}</div>
+                    <div class="info"><strong>Distância:</strong> ${corrida.distancia}</div>
+                    <div class="info"><strong>Tempo:</strong> ${corrida.tempo}</div>
+                    <div class="valor">R$ ${corrida.valor.replace('.', ',')}</div>
+                    <div class="status procurando">Procurando motorista</div>
                     <div class="row">
-
-                        <button class="aceitar"
-                            onclick="aceitarCorrida(
-                                ${corrida.id},
-                                '${corrida.origem}',
-                                '${corrida.destino}'
-                            )">
-
-                            Aceitar
-
-                        </button>
-
-                        <button class="recusar"
-                            onclick="recusarCorrida(${corrida.id})">
-
-                            Recusar
-
-                        </button>
-
+                        <button class="aceitar" onclick="aceitarCorrida(${corrida.id}, '${oriEscaped}', '${desEscaped}')">Aceitar</button>
+                        <button class="recusar" onclick="recusarCorrida(${corrida.id})">Recusar</button>
                     </div>
-
                 </div>
-
             `;
-
         }
 
         function carregarCorridas() {
-
-            const corridas =
-                JSON.parse(localStorage.getItem('corridas')) || [];
-
+            const corridas = JSON.parse(localStorage.getItem('corridas')) || [];
             painel.innerHTML = '';
 
-            const disponiveis = corridas.filter(c =>
-                c.status === 'procurando_motorista'
-            );
+            const disponiveis = corridas.filter(c => c.status === 'procurando_motorista');
 
             if (!disponiveis.length) {
-
-                painel.innerHTML =
-                    `<div class="vazio">
-                        Aguardando novas corridas...
-                     </div>`;
-
+                painel.innerHTML = `<div class="vazio">Aguardando novas corridas em tempo real...</div>`;
                 return;
             }
 
-            disponiveis.reverse().forEach(corrida => {
-                renderizarCorrida(corrida);
-            });
-
+            disponiveis.reverse().forEach(corrida => renderizarCorrida(corrida));
         }
 
         async function aceitarCorrida(id, origem, destino) {
-
-            let corridas =
-                JSON.parse(localStorage.getItem('corridas')) || [];
-
+            let corridas = JSON.parse(localStorage.getItem('corridas')) || [];
             corridas = corridas.map(c => {
-
                 if (c.id === id) {
-
                     c.status = 'aceita';
                     c.motoristaId = motoristaId;
-
                 }
-
                 return c;
-
             });
-
-            localStorage.setItem(
-                'corridas',
-                JSON.stringify(corridas)
-            );
-
+            localStorage.setItem('corridas', JSON.stringify(corridas));
             carregarCorridas();
-
             abrirTelaGps(origem, destino);
-
         }
 
         async function abrirTelaGps(origem, destino) {
+            document.getElementById('gpsTela').style.display = 'flex';
+            document.getElementById('origemGps').innerHTML = `<strong>Origem:</strong> ${origem}`;
+            document.getElementById('destinoGps').innerHTML = `<strong>Destino:</strong> ${destino}`;
 
-            document.getElementById('gpsTela')
-                .style.display = 'flex';
-
-            document.getElementById('origemGps')
-                .innerHTML =
-                `<strong>Origem:</strong> ${origem}`;
-
-            document.getElementById('destinoGps')
-                .innerHTML =
-                `<strong>Destino:</strong> ${destino}`;
+            // Correção da URL estrutural para abrir o App nativo de GPS (Google Maps)
+            document.getElementById('btnIniciarRota').onclick = () => {
+                const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origem)}&destination=${encodeURIComponent(destino)}&travelmode=driving`;
+                window.open(url, '_blank');
+            };
 
             try {
-
-                const rO =
-                    await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(origem)}&countrycodes=br`
-                    );
-
+                const rO = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(origem)}&countrycodes=br`);
                 const dO = await rO.json();
-
-                const rD =
-                    await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destino)}&countrycodes=br`
-                    );
-
+                const rD = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destino)}&countrycodes=br`);
                 const dD = await rD.json();
 
-                const rota =
-                    await fetch(
-                        `https://router.project-osrm.org/route/v1/driving/${dO[0].lon},${dO[0].lat};${dD[0].lon},${dD[0].lat}?overview=full&geometries=geojson`
-                    );
-
-                const dadosRota =
-                    await rota.json();
-
                 if (!mapaGps) {
-
-                    mapaGps =
-                        L.map('mapaGps');
-
-                    L.tileLayer(
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                    ).addTo(mapaGps);
-
+                    mapaGps = L.map('mapaGps');
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaGps);
                 }
 
-                if (rotaAtual) {
-                    mapaGps.removeLayer(rotaAtual);
-                }
+                if (rotaAtual) mapaGps.removeLayer(rotaAtual);
+                if (marcadorOrigem) mapaGps.removeLayer(marcadorOrigem);
+                if (marcadorDestino) mapaGps.removeLayer(marcadorDestino);
 
-                if (marcadorOrigem) {
-                    mapaGps.removeLayer(marcadorOrigem);
-                }
+                const rota = await fetch(`https://router.project-osrm.org/route/v1/driving/${dO[0].lon},${dO[0].lat};${dD[0].lon},${dD[0].lat}?overview=full&geometries=geojson`);
+                const dadosRota = await rota.json();
 
-                if (marcadorDestino) {
-                    mapaGps.removeLayer(marcadorDestino);
-                }
+                marcadorOrigem = L.marker([dO[0].lat, dO[0].lon]).addTo(mapaGps);
+                marcadorDestino = L.marker([dD[0].lat, dD[0].lon]).addTo(mapaGps);
 
-                marcadorOrigem =
-                    L.marker([dO[0].lat, dO[0].lon])
-                        .addTo(mapaGps);
+                rotaAtual = L.geoJSON(dadosRota.routes[0].geometry, {
+                    style: { color: '#2e5b8e', weight: 6 }
+                }).addTo(mapaGps);
 
-                marcadorDestino =
-                    L.marker([dD[0].lat, dD[0].lon])
-                        .addTo(mapaGps);
-
-                rotaAtual =
-                    L.geoJSON(
-                        dadosRota.routes[0].geometry,
-                        {
-                            style: {
-                                color: '#2e5b8e',
-                                weight: 6
-                            }
-                        }
-                    ).addTo(mapaGps);
-
-                mapaGps.fitBounds(
-                    rotaAtual.getBounds()
-                );
-
-                setTimeout(() => {
-                    mapaGps.invalidateSize();
-                }, 300);
-
-                document.getElementById('btnIniciarRota')
-                    .onclick = () => {
-
-                        const url =
-                            `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origem)}&destination=${encodeURIComponent(destino)}&travelmode=driving`;
-
-                        window.open(url, '_blank');
-
-                    };
+                mapaGps.fitBounds(rotaAtual.getBounds(), { padding: [40, 40] });
+                
+                // Evita problemas de redimensionamento do Leaflet gerados pelo display: flex assíncrono
+                setTimeout(() => { mapaGps.invalidateSize(); }, 400);
 
             } catch (e) {
-
-                alert(
-                    'Erro ao carregar GPS.'
-                );
-
+                alert('Erro na renderização do mapa interno. Você ainda pode usar o botão "Navegação Externa"');
             }
-
         }
 
-        function fecharGps() {
-
-            document.getElementById('gpsTela')
-                .style.display = 'none';
-
-        }
+        function fecharGps() { document.getElementById('gpsTela').style.display = 'none'; }
 
         function recusarCorrida(id) {
-
-            let corridas =
-                JSON.parse(localStorage.getItem('corridas')) || [];
-
+            let corridas = JSON.parse(localStorage.getItem('corridas')) || [];
             corridas = corridas.map(c => {
-
-                if (c.id === id) {
-
-                    c.status = 'recusada';
-
-                }
-
+                if (c.id === id) c.status = 'recusada';
                 return c;
-
             });
-
-            localStorage.setItem(
-                'corridas',
-                JSON.stringify(corridas)
-            );
-
+            localStorage.setItem('corridas', JSON.stringify(corridas));
             carregarCorridas();
-
         }
 
-        window.addEventListener('storage', (e) => {
-
-            if (e.key === 'corridas') {
-
-                carregarCorridas();
-
-            }
-
-        });
-
+        window.addEventListener('storage', (e) => { if (e.key === 'corridas') carregarCorridas(); });
+        
         setInterval(() => {
-
-            carregarCorridas();
-
-        }, 3000);
+            if (document.getElementById('gpsTela').style.display !== 'flex') carregarCorridas();
+        }, 4000);
 
         carregarCorridas();
-
     </script>
-
 </body>
-
 </html>
